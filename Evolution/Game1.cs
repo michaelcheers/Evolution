@@ -18,7 +18,8 @@ namespace Evolution
         Point oldMouse;
         Point viewPos = new Point(0,0);
         public const int WorldW = 128;
-        public const int WorldH = 32;
+        public const int WorldH = 128;
+        public byte[] registers;
 
         public Game1()
         {
@@ -74,7 +75,7 @@ namespace Evolution
 
             Random rand = new Random();
             foodGrid = new int[WorldW, WorldH];
-            for(int Idx = 0; Idx < 200; ++Idx)
+            for(int Idx = 0; Idx < 1000; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }
