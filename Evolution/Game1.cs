@@ -14,7 +14,7 @@ namespace Evolution
         SpriteBatch spriteBatch;
         Texture2D[] backgrounds;
         Texture2D[] animals;
-        int[,] foodGrid;
+        public int[,] foodGrid;
         Point oldMouse;
         Point viewPos = new Point(0,0);
         public const int WorldW = 128;

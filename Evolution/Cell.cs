@@ -8,5 +8,6 @@ namespace Evolution
 {
     public class Cell
     {
+        public InterpreterProgram program;
     }
 }
