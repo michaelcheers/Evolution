@@ -77,7 +77,7 @@ namespace Evolution
 
             Random rand = new Random();
             foodGrid = new int[WorldW, WorldH];
-            for(int Idx = 0; Idx < 1000; ++Idx)
+            for(int Idx = 0; Idx < 16384; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }

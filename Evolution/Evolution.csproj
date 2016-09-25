@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Cell.cs" />
+    <Compile Include="Direction.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InterpreterProgram.cs" />

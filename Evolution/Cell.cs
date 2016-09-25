@@ -19,5 +19,6 @@ namespace Evolution
         public Direction direction;
 
         public InterpreterProgram program;
+        public Direction direction;
     }
 }
