@@ -15,6 +15,8 @@ namespace Evolution
         Texture2D[] backgrounds;
         Texture2D[] animals;
         int[,] foodGrid;
+        Point oldMouse;
+        Point viewPos = new Point(0,0);
         public const int WorldW = 128;
         public const int WorldH = 32;
 
@@ -22,6 +24,7 @@ namespace Evolution
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -75,6 +78,8 @@ namespace Evolution
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }
+
+            oldMouse = Mouse.GetState().Position;
         }
 
         /// <summary>
@@ -97,6 +102,12 @@ namespace Evolution
                 Exit();
 
             // TODO: Add your update logic here
+            MouseState mouse = Mouse.GetState();
+            if(mouse.LeftButton == ButtonState.Pressed)
+            {
+                viewPos += oldMouse - mouse.Position;
+            }
+            oldMouse = mouse.Position;
 
             base.Update(gameTime);
         }
@@ -111,11 +122,16 @@ namespace Evolution
 
             spriteBatch.Begin();
             // TODO: Add your drawing code here
-            for(int x = 0; x < WorldW; x++)
+            int minX = Math.Max(0, viewPos.X/16);
+            int minY = Math.Max(0, viewPos.Y/16);
+            int maxX = Math.Min( (viewPos.X + Window.ClientBounds.Width)/16 + 1, WorldW);
+            int maxY = Math.Min( (viewPos.Y + Window.ClientBounds.Height)/16 + 1, WorldH);
+
+            for (int x = minX; x < maxX; x++)
             {
-                for(int y = 0; y < WorldH; y++)
+                for(int y = minY; y < maxY; y++)
                 {
-                    spriteBatch.Draw(backgrounds[foodGrid[x, y]], new Rectangle(x * 16, y * 16, 16, 16), Color.White);
+                    spriteBatch.Draw(backgrounds[foodGrid[x, y]], new Rectangle(x * 16 - viewPos.X, y * 16 - viewPos.Y, 16, 16), Color.White);
                 }
             }
             spriteBatch.End();
