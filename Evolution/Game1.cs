@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Evolution
 {
@@ -11,6 +12,11 @@ namespace Evolution
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Texture2D[] backgrounds;
+        Texture2D[] animals;
+        int[,] foodGrid;
+        public const int WorldW = 128;
+        public const int WorldH = 32;
 
         public Game1()
         {
@@ -41,6 +47,34 @@ namespace Evolution
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            backgrounds = new Texture2D[]
+            {
+                Content.Load<Texture2D>("food0"),
+                Content.Load<Texture2D>("food1"),
+                Content.Load<Texture2D>("food2"),
+                Content.Load<Texture2D>("food3"),
+                Content.Load<Texture2D>("food4"),
+                Content.Load<Texture2D>("food5"),
+                Content.Load<Texture2D>("food6"),
+                Content.Load<Texture2D>("food7"),
+                Content.Load<Texture2D>("food8"),
+                Content.Load<Texture2D>("food9"),
+            };
+
+            animals = new Texture2D[]
+            {
+                Content.Load<Texture2D>("cell_u"),
+                Content.Load<Texture2D>("cell_d"),
+                Content.Load<Texture2D>("cell_l"),
+                Content.Load<Texture2D>("cell_r"),
+            };
+
+            Random rand = new Random();
+            foodGrid = new int[WorldW, WorldH];
+            for(int Idx = 0; Idx < 200; ++Idx)
+            {
+                foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
+            }
         }
 
         /// <summary>
@@ -75,7 +109,16 @@ namespace Evolution
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            spriteBatch.Begin();
             // TODO: Add your drawing code here
+            for(int x = 0; x < WorldW; x++)
+            {
+                for(int y = 0; y < WorldH; y++)
+                {
+                    spriteBatch.Draw(backgrounds[foodGrid[x, y]], new Rectangle(x * 16, y * 16, 16, 16), Color.White);
+                }
+            }
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
