@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Evolution
 {
@@ -13,8 +14,9 @@ namespace Evolution
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D[] backgrounds;
-        Texture2D[] animals;
+        Texture2D[] cellTextures;
         public int[,] foodGrid;
+        public Dictionary<Point, Cell> cells;
         Point oldMouse;
         Point viewPos = new Point(0,0);
         public const int WorldW = 128;
@@ -65,7 +67,7 @@ namespace Evolution
                 Content.Load<Texture2D>("food9"),
             };
 
-            animals = new Texture2D[]
+            cellTextures = new Texture2D[]
             {
                 Content.Load<Texture2D>("cell_u"),
                 Content.Load<Texture2D>("cell_d"),
@@ -79,6 +81,9 @@ namespace Evolution
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }
+
+            cells = new Dictionary<Point, Cell>();
+            cells[new Point(10,10)] = new Cell();
 
             oldMouse = Mouse.GetState().Position;
         }
@@ -132,7 +137,29 @@ namespace Evolution
             {
                 for(int y = minY; y < maxY; y++)
                 {
-                    spriteBatch.Draw(backgrounds[foodGrid[x, y]], new Rectangle(x * 16 - viewPos.X, y * 16 - viewPos.Y, 16, 16), Color.White);
+                    Rectangle rect = new Rectangle(x * 16 - viewPos.X, y * 16 - viewPos.Y, 16, 16);
+                    spriteBatch.Draw(backgrounds[foodGrid[x, y]], rect, Color.White);
+
+                    Point p = new Point(x, y);
+                    if(cells.ContainsKey(p))
+                    {
+                        Cell c = cells[p];
+                        switch(c.direction)
+                        {
+                            case Direction.North:
+                                spriteBatch.Draw(cellTextures[0], rect, Color.White);
+                                break;
+                            case Direction.South:
+                                spriteBatch.Draw(cellTextures[1], rect, Color.White);
+                                break;
+                            case Direction.East:
+                                spriteBatch.Draw(cellTextures[3], rect, Color.White);
+                                break;
+                            case Direction.West:
+                                spriteBatch.Draw(cellTextures[2], rect, Color.White);
+                                break;
+                        }
+                    }
                 }
             }
             spriteBatch.End();
