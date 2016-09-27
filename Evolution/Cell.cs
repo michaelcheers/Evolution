@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Evolution
         public Point location;
         public byte energy = 10;
         public byte health = 10;
-        public const int energyPerFood = 10;
+        public const int energyPerFood = 30;
 
         public void Eat ()
         {
@@ -24,12 +25,16 @@ namespace Evolution
                 var food = program.game.foodGrid[location.X, location.Y];
                 if(food > 0)
                 {
+                    //int foodCheck = program.game.FoodCheck();
+                    int amountEaten = 1;// Game1.rnd.Next(food-1)+1;
+                    Debug.Assert(amountEaten > 0 && amountEaten <= food);
                     unchecked
                     {
-                        energy += (byte)Cell.energyPerFood;
+                        energy += (byte)(amountEaten * Cell.energyPerFood);
                         program.game.registers[0] = energy;
                     }
-                    program.game.foodGrid[location.X, location.Y]--;
+                    program.game.foodGrid[location.X, location.Y] -= amountEaten;
+                    //Debug.Assert(foodCheck >= program.game.FoodCheck());
                 }
             }
         }
@@ -55,6 +60,30 @@ namespace Evolution
                     throw new Exception();
             }
             return change;
+        }
+
+        public static Direction Unpointify(Point p)
+        {
+            Point change;
+            if(p.X == 0)
+            {
+                if(p.Y > 0)
+                {
+                    return Direction.Down;
+                }
+                else
+                {
+                    return Direction.Up;
+                }
+            }
+            else if(p.X > 0)
+            {
+                return Direction.Right;
+            }
+            else
+            {
+                return Direction.Left;
+            }
         }
 
         public void Move ()
@@ -100,20 +129,22 @@ namespace Evolution
         
         public void StartBreed (Direction value)
         {
-            if (energy >= 2)
+            if (energy > 2)
             {
-                breed = Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
+                breed = new Point(0,0)-Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
                 Point targetPos = breed + location;
                 if (program.game.cells.ContainsKey(targetPos))
                     return;
+
+                byte halfEnergy = (byte)(energy / 2);
                 Cell cell = new Cell();
                 {
                     cell.location = breed + location;
-                    cell.direction = Direction.Up;
-                    cell.energy = 2;
+                    cell.direction = Unpointify(new Point(0,0)-breed);
+                    cell.energy = halfEnergy;
                     cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
                 };
-                energy -= 2;
+                energy -= halfEnergy;
                 program.game.registers[0] = energy;
                 program.game.toAdd[breed + location] = cell;
             }
@@ -132,22 +163,31 @@ namespace Evolution
             Random rnd = Game1.rnd;
             while (true)
             {
-                if (rnd.Next(2) == 1)
+                switch (rnd.Next(4))
                 {
-                    v[rnd.Next(v.Length)] += (byte)(rnd.Next(2) - 1);
+                    case 0:
+                        v[rnd.Next(v.Length)] = (byte)(rnd.Next(255));
+                        break;
+                    case 1:
+                        v[rnd.Next(v.Length)] += (byte)(rnd.Next(2) - 1);
+                        break;
+                    default:
+                        return v;
                 }
-                else
-                    return v;
             }
         }
 
         public void Die ()
         {
+//            int preFoodCheck = program.game.FoodCheck();
             program.game.toRemove.Add(location);
             if(energy >= energyPerFood && location.X >= 0 && location.Y >= 0 && location.X < program.game.foodGrid.GetLength(0) && location.Y < program.game.foodGrid.GetLength(1))
             {
                 program.game.foodGrid[location.X, location.Y] += energy / energyPerFood;
+                energy = 0;
             }
+   //         int postFoodCheck = program.game.FoodCheck();
+     //       Debug.Assert(preFoodCheck >= postFoodCheck);
         }
     }
 }

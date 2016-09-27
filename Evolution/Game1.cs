@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Evolution
 {
@@ -84,9 +85,13 @@ namespace Evolution
 
             Random rand = new Random();
             foodGrid = new int[WorldW, WorldH];
-            for(int Idx = 0; Idx < 12000; ++Idx)
+            for(int Idx = 0; Idx < 6000; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
+            }
+            for (int Idx = 0; Idx < 300; ++Idx)
+            {
+                foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]+=100;
             }
 
             cells = new Dictionary<Point, Cell>();
@@ -108,6 +113,9 @@ namespace Evolution
                 cells[cell.location] = cell;
             }
             oldMouse = Mouse.GetState().Position;
+
+            oldFoodCheck = FoodCheck();
+            oldEnergyCheck = EnergyCheck();
         }
 
         public static Random rnd = new Random();
@@ -121,6 +129,11 @@ namespace Evolution
             // TODO: Unload any non ContentManager content here
         }
 
+
+        int oldFoodCheck = 0;
+        int oldEnergyCheck = 0;
+        int oldNumCells = 0;
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -128,8 +141,13 @@ namespace Evolution
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            int newFoodCheck = FoodCheck();
+            int newEnergyCheck = EnergyCheck();
+            int newNumCells = cells.Count;
+            Debug.Assert((newFoodCheck+newEnergyCheck) <= (oldFoodCheck+oldEnergyCheck));
+            oldFoodCheck = newFoodCheck;
+            oldEnergyCheck = newEnergyCheck;
+            oldNumCells = newNumCells;
 
             // TODO: Add your update logic here
             MouseState mouse = Mouse.GetState();
@@ -145,9 +163,14 @@ namespace Evolution
                     registers[0] = item.Value.energy;
                     registers[1] = item.Value.health;
                     if (item.Value.health == 0 || item.Value.energy == 0)
+                    {
                         item.Value.Die();
-                    item.Value.energy--;
-                    item.Value.program.Run(10);
+                    }
+                    else
+                    {
+                        item.Value.energy--;
+                        item.Value.program.Run(10);
+                    }
                 }
                 foreach (var item in toAdd)
                 {
@@ -164,6 +187,30 @@ namespace Evolution
             }
 
             base.Update(gameTime);
+        }
+
+        public int FoodCheck()
+        {
+            int total = 0;
+            for (int x = 0; x < WorldW; x++)
+            {
+                for (int y = 0; y < WorldH; y++)
+                {
+                    total += foodGrid[x, y] * Cell.energyPerFood;
+                }
+            }
+            return total;
+        }
+
+        public int EnergyCheck()
+        {
+            int total = 0;
+            foreach (KeyValuePair<Point, Cell> kv in cells)
+            {
+                total += kv.Value.energy;
+            }
+
+            return total;
         }
 
         /// <summary>
