@@ -15,18 +15,22 @@ namespace Evolution
         public Point location;
         public byte energy = 10;
         public byte health = 10;
+        public const int energyPerFood = 10;
 
         public void Eat ()
         {
             if (new Rectangle(0, 0, program.game.foodGrid.GetLength(0), program.game.foodGrid.GetLength(1)).Contains(location))
             {
                 var food = program.game.foodGrid[location.X, location.Y];
-                unchecked
+                if(food > 0)
                 {
-                    energy += (byte)(food * 6);
-                    program.game.registers[0] = energy;
+                    unchecked
+                    {
+                        energy += (byte)Cell.energyPerFood;
+                        program.game.registers[0] = energy;
+                    }
+                    program.game.foodGrid[location.X, location.Y]--;
                 }
-                program.game.foodGrid[location.X, location.Y] = 0;
             }
         }
 
@@ -55,16 +59,32 @@ namespace Evolution
 
         public void Move ()
         {
-            Point change = Pointify(direction);
-            if (!program.game.toAdd.ContainsKey(location - change))
+            Point newPos = location + Pointify(direction);
+            int maxX = program.game.foodGrid.GetLength(0) - 1;
+            int maxY = program.game.foodGrid.GetLength(1) - 1;
+
+            if (newPos.X < 0)
+                newPos.X = maxX;
+            else if (newPos.X == maxX)
+                newPos.X = 0;
+
+            if (newPos.Y < 0)
+                newPos.Y = maxY;
+            else if (newPos.Y == maxY)
+                newPos.Y = 0;
+
+            if (!program.game.toAdd.ContainsKey(newPos))
             {
-                if (program.game.cells.ContainsKey(location - change))
+                if (program.game.cells.ContainsKey(newPos))
                 {
-                    program.game.cells[location - change].health--;
+                    program.game.cells[newPos].health--;
                 }
-                program.game.toRemove.Add(location);
-                location -= change;
-                program.game.toAdd.Add(location, this);
+                else
+                {
+                    program.game.toRemove.Add(location);
+                    location = newPos;
+                    program.game.toAdd.Add(newPos, this);
+                }
             }
         }
 
@@ -114,7 +134,7 @@ namespace Evolution
             {
                 if (rnd.Next(2) == 1)
                 {
-                    v[rnd.Next(v.Length)] += (byte)((rnd.Next(2) * 2) - 1);
+                    v[rnd.Next(v.Length)] += (byte)(rnd.Next(2) - 1);
                 }
                 else
                     return v;
@@ -124,6 +144,10 @@ namespace Evolution
         public void Die ()
         {
             program.game.toRemove.Add(location);
+            if(energy >= energyPerFood && location.X >= 0 && location.Y >= 0 && location.X < program.game.foodGrid.GetLength(0) && location.Y < program.game.foodGrid.GetLength(1))
+            {
+                program.game.foodGrid[location.X, location.Y] += energy / energyPerFood;
+            }
         }
     }
 }

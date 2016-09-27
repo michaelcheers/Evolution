@@ -21,13 +21,16 @@ namespace Evolution
         public List<Point> toRemove;
         Point oldMouse;
         Point viewPos = new Point(0,0);
-        public const int WorldW = 128;
-        public const int WorldH = 128;
+        public const int WorldW = 84;
+        public const int WorldH = 83;
         public byte[] registers = new byte[256];
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1000;
+            graphics.PreferredBackBufferHeight = 768;
+            graphics.ApplyChanges();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             toAdd = new Dictionary<Point, Cell>();
@@ -81,7 +84,7 @@ namespace Evolution
 
             Random rand = new Random();
             foodGrid = new int[WorldW, WorldH];
-            for(int Idx = 0; Idx < 16384; ++Idx)
+            for(int Idx = 0; Idx < 12000; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }
@@ -183,7 +186,10 @@ namespace Evolution
                 for(int y = minY; y < maxY; y++)
                 {
                     Rectangle rect = new Rectangle(x * 16 - viewPos.X, y * 16 - viewPos.Y, 16, 16);
-                    spriteBatch.Draw(backgrounds[foodGrid[x, y]], rect, Color.White);
+                    int foodAmount = foodGrid[x, y];
+                    if (foodAmount > 9)
+                        foodAmount = 9;
+                    spriteBatch.Draw(backgrounds[foodAmount], rect, Color.White);
 
                     Point p = new Point(x, y);
                     if(cells.ContainsKey(p))
