@@ -68,9 +68,13 @@ namespace Evolution
             }
         }
 
-        public byte GetVision ()
+        public byte GetVision()
         {
-
+            var place = location + Pointify(direction);
+            if (program.game.cells.ContainsKey(place))
+                return 255;
+            else
+                return program.game.foodGrid[place.X, place.Y];
         }
 
         public void Turn (Direction value)
@@ -91,7 +95,7 @@ namespace Evolution
                     cell.location = breed + location;
                     cell.direction = Direction.Up;
                     cell.energy = 2;
-                    cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+                    cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
                 };
                 energy -= 2;
                 program.game.registers[0] = energy;
@@ -115,6 +119,13 @@ namespace Evolution
                 if (rnd.Next(2) == 1)
                 {
                     v[rnd.Next(v.Length)] += (byte)((rnd.Next(2) * 2) - 1);
+                }
+                else if (rnd.Next(2) == 1)
+                {
+                    var nc = new byte[v.Length + 1];
+                    v.CopyTo(nc, 1);
+                    nc[0] = (byte)rnd.Next(256);
+                    v = nc;
                 }
                 else
                     return v;

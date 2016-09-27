@@ -15,7 +15,7 @@ namespace Evolution
         SpriteBatch spriteBatch;
         Texture2D[] backgrounds;
         Texture2D[] cellTextures;
-        public int[,] foodGrid;
+        public byte[,] foodGrid;
         public Dictionary<Point, Cell> cells;
         public Dictionary<Point, Cell> toAdd;
         public List<Point> toRemove;
@@ -80,7 +80,7 @@ namespace Evolution
             };
 
             Random rand = new Random();
-            foodGrid = new int[WorldW, WorldH];
+            foodGrid = new byte[WorldW, WorldH];
             for(int Idx = 0; Idx < 16384; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
@@ -100,7 +100,7 @@ namespace Evolution
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
-                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
 
                 cells[cell.location] = cell;
             }

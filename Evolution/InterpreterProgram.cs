@@ -18,9 +18,10 @@ namespace Evolution
         public Action<Direction> StartBreed;
         public Action WriteProgramBreed;
         public Action Die;
+        public Func<byte> GetVision;
         int location;
 
-        public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Action<Direction> StartBreed, Action WriteProgramBreed, Action Die)
+        public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Action<Direction> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision)
         {
             this.program = program;
             this.game = game;
@@ -30,6 +31,7 @@ namespace Evolution
             this.StartBreed = StartBreed;
             this.WriteProgramBreed = WriteProgramBreed;
             this.Die = Die;
+            this.GetVision = GetVision;
             this.location = 0;
         }
 
@@ -134,6 +136,7 @@ namespace Evolution
                                 location += 3;
                             break;
                         case Instruction.GetVision:
+                            registers[byte2] = GetVision();
                             break;
                         default:
                             location++;
