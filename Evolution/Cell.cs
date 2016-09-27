@@ -16,6 +16,7 @@ namespace Evolution
         public Point location;
         public byte energy = 10;
         public byte health = 10;
+        public byte age = 0;
         public const int energyPerFood = 30;
 
         public void Eat ()
@@ -33,7 +34,10 @@ namespace Evolution
                         energy += (byte)(amountEaten * Cell.energyPerFood);
                         program.game.registers[0] = energy;
                     }
-                    program.game.foodGrid[location.X, location.Y] -= amountEaten;
+                    if (program.game.foodGrid[location.X, location.Y] != 255)
+                    {
+                        program.game.foodGrid[location.X, location.Y] -= (byte)amountEaten;
+                    }
                     //Debug.Assert(foodCheck >= program.game.FoodCheck());
                 }
             }
@@ -64,7 +68,6 @@ namespace Evolution
 
         public static Direction Unpointify(Point p)
         {
-            Point change;
             if(p.X == 0)
             {
                 if(p.Y > 0)
@@ -117,9 +120,15 @@ namespace Evolution
             }
         }
 
-        public byte GetVision ()
+        public byte GetVision()
         {
-            return 0;
+            var place = location + Pointify(direction);
+            if (program.game.cells.ContainsKey(place))
+                return 255;
+            else if (place.X < 0 || place.Y < 0 || place.X >= program.game.foodGrid.GetLength(0) || place.Y >= program.game.foodGrid.GetLength(1))
+                return 0;
+            else
+                return program.game.foodGrid[place.X, place.Y];
         }
 
         public void Turn (Direction value)
@@ -142,11 +151,15 @@ namespace Evolution
                     cell.location = breed + location;
                     cell.direction = Unpointify(new Point(0,0)-breed);
                     cell.energy = halfEnergy;
-                    cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+                    cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
                 };
                 energy -= halfEnergy;
+                age++;
                 program.game.registers[0] = energy;
                 program.game.toAdd[breed + location] = cell;
+
+                if (age > 10)
+                    Die();
             }
         }
 
@@ -174,6 +187,17 @@ namespace Evolution
                     default:
                         return v;
                 }
+
+                /*else if (rnd.Next(2) == 1)
+                {
+                    var nc = new byte[v.Length + 1];
+                    v.CopyTo(nc, 1);
+                    nc[0] = (byte)rnd.Next(256);
+                    v = nc;
+                }
+                else
+                    return v;
+                    */
             }
         }
 
@@ -183,7 +207,18 @@ namespace Evolution
             program.game.toRemove.Add(location);
             if(energy >= energyPerFood && location.X >= 0 && location.Y >= 0 && location.X < program.game.foodGrid.GetLength(0) && location.Y < program.game.foodGrid.GetLength(1))
             {
-                program.game.foodGrid[location.X, location.Y] += energy / energyPerFood;
+                int oldFood = program.game.foodGrid[location.X, location.Y];
+                int foodDropped = (int)(energy / energyPerFood);
+                if (oldFood != 255)
+                {
+                    if (oldFood + foodDropped >= 255)
+                        program.game.foodGrid[location.X, location.Y] = 254;
+                    else if (oldFood + foodDropped > 0)
+                        program.game.foodGrid[location.X, location.Y] = (byte)(oldFood + foodDropped);
+                    else
+                        program.game.foodGrid[location.X, location.Y] = 0;
+                }
+
                 energy = 0;
             }
    //         int postFoodCheck = program.game.FoodCheck();

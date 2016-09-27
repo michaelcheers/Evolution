@@ -16,7 +16,7 @@ namespace Evolution
         SpriteBatch spriteBatch;
         Texture2D[] backgrounds;
         Texture2D[] cellTextures;
-        public int[,] foodGrid;
+        public byte[,] foodGrid;
         public Dictionary<Point, Cell> cells;
         public Dictionary<Point, Cell> toAdd;
         public List<Point> toRemove;
@@ -84,14 +84,15 @@ namespace Evolution
             };
 
             Random rand = new Random();
-            foodGrid = new int[WorldW, WorldH];
+
+            foodGrid = new byte[WorldW, WorldH];
             for(int Idx = 0; Idx < 6000; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }
-            for (int Idx = 0; Idx < 300; ++Idx)
+            for (int Idx = 0; Idx < 500; ++Idx)
             {
-                foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]+=100;
+                foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)] = 255;
             }
 
             cells = new Dictionary<Point, Cell>();
@@ -108,7 +109,7 @@ namespace Evolution
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
-                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
 
                 cells[cell.location] = cell;
             }
@@ -144,7 +145,7 @@ namespace Evolution
             int newFoodCheck = FoodCheck();
             int newEnergyCheck = EnergyCheck();
             int newNumCells = cells.Count;
-            Debug.Assert((newFoodCheck+newEnergyCheck) <= (oldFoodCheck+oldEnergyCheck));
+            //Debug.Assert((newFoodCheck+newEnergyCheck) <= (oldFoodCheck+oldEnergyCheck));
             oldFoodCheck = newFoodCheck;
             oldEnergyCheck = newEnergyCheck;
             oldNumCells = newNumCells;
