@@ -78,7 +78,8 @@ namespace Evolution
             if (energy >= 2)
             {
                 breed = Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
-                if (program.game.cells.ContainsKey(breed + location))
+                Point targetPos = breed + location;
+                if (program.game.cells.ContainsKey(targetPos))
                     return;
                 Cell cell = new Cell();
                 {

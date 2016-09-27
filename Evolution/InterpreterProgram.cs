@@ -35,16 +35,19 @@ namespace Evolution
 
         public void Run(int cycles)
         {
-            for(int ran = 0; ran < cycles; ran++)
+            if (program.Length == 0)
+                return;
+
+            for (int ran = 0; ran < cycles; ran++)
             {
+                if (location >= program.Length || location < 0)
+                {
+                    location = 0;
+                }
                 Instruction instruction = (Instruction)program[location];
                 byte byte2 = (location+1 < program.Length)? program[location + 1]: (byte)0;
                 byte byte3 = (location+2 < program.Length)? program[location + 2]: (byte)0;
                 location += 3;
-                if (location >= program.Length)
-                {
-                    location = 0;
-                }
 
                 unchecked
                 {
@@ -60,7 +63,10 @@ namespace Evolution
                             registers[byte2] *= registers[byte3];
                             break;
                         case Instruction.Divide:
-                            registers[byte2] /= registers[byte3];
+                            if (registers[byte3] == 0)
+                                registers[byte2] = 255;
+                            else
+                                registers[byte2] /= registers[byte3];
                             break;
                         case Instruction.AddConstant:
                             registers[byte2] += byte3;
@@ -72,7 +78,10 @@ namespace Evolution
                             registers[byte2] *= byte3;
                             break;
                         case Instruction.DivideConstant:
-                            registers[byte2] /= byte3;
+                            if (byte3 == 0)
+                                registers[byte2] = 255;
+                            else
+                                registers[byte2] /= byte3;
                             break;
                         case Instruction.Jump:
                             location = (registers[byte2] << 8) + registers[byte3] - 3;
@@ -100,7 +109,7 @@ namespace Evolution
                             break;
                         case Instruction.Move:
                             Move();
-                            break;
+                            return;
                         case Instruction.Turn:
                             Turn((Direction)byte2);
                             break;

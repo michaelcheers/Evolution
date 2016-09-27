@@ -87,7 +87,7 @@ namespace Evolution
             }
 
             cells = new Dictionary<Point, Cell>();
-            for (int n = 0; n < 1000; n++)
+            for (int n = 0; n < 10; n++)
             {
                 Cell cell = new Cell();
                 cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
@@ -96,6 +96,7 @@ namespace Evolution
                 {
                     (byte)Instruction.Eat, 0, 0,
                     (byte)Instruction.Move, 0, 0,
+                    (byte)Instruction.Turn, 1, 0,
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
@@ -143,7 +144,7 @@ namespace Evolution
                     if (item.Value.health == 0 || item.Value.energy == 0)
                         item.Value.Die();
                     item.Value.energy--;
-                    item.Value.program.Run(200);
+                    item.Value.program.Run(10);
                 }
                 foreach (var item in toAdd)
                 {
