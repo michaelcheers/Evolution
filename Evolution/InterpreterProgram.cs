@@ -18,6 +18,7 @@ namespace Evolution
         public Action<Direction> StartBreed;
         public Action WriteProgramBreed;
         public Action Die;
+        int location;
 
         public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Action<Direction> StartBreed, Action WriteProgramBreed, Action Die)
         {
@@ -29,15 +30,22 @@ namespace Evolution
             this.StartBreed = StartBreed;
             this.WriteProgramBreed = WriteProgramBreed;
             this.Die = Die;
+            this.location = 0;
         }
 
         public void Run(int cycles)
         {
-            for (int location = 0; location < program.Length; location += 3)
+            for(int ran = 0; ran < cycles; ran++)
             {
                 Instruction instruction = (Instruction)program[location];
-                byte byte2 = program[location + 1];
-                byte byte3 = program[location + 2];
+                byte byte2 = (location+1 < program.Length)? program[location + 1]: (byte)0;
+                byte byte3 = (location+2 < program.Length)? program[location + 2]: (byte)0;
+                location += 3;
+                if (location >= program.Length)
+                {
+                    location = 0;
+                }
+
                 unchecked
                 {
                     switch (instruction)
@@ -117,7 +125,9 @@ namespace Evolution
                                 location += 3;
                             break;
                         default:
-                            throw new Exception();
+                            location++;
+                            break;
+                            //throw new Exception();
                     }
                 }
             }

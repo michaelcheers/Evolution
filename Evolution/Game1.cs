@@ -91,7 +91,16 @@ namespace Evolution
             {
                 Cell cell = new Cell();
                 cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
-                cell.program = new InterpreterProgram(this, new byte[] { (byte)Instruction.RegisterSet, 6, 2, (byte)Instruction.RegisterSet, 7, 18, (byte)Instruction.IfGreater, 0, 6, (byte)Instruction.Jump, 255, 7, (byte)Instruction.Turn, (byte)Direction.Right, 0, (byte)Instruction.Eat, 0, 0, (byte)Instruction.StartBreed, 0, 0, (byte)Instruction.SetProgramToRegister, 0, 0, (byte)Instruction.WriteProgramBreed, 0, 0 }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+
+                cell.program = new InterpreterProgram(this, new byte[]
+                {
+                    (byte)Instruction.Eat, 0, 0,
+                    (byte)Instruction.Move, 0, 0,
+                    (byte)Instruction.StartBreed, 0, 0,
+                    (byte)Instruction.SetProgramToRegister, 0, 0,
+                    (byte)Instruction.WriteProgramBreed, 0, 0
+                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+
                 cells[cell.location] = cell;
             }
             oldMouse = Mouse.GetState().Position;
@@ -134,16 +143,20 @@ namespace Evolution
                     if (item.Value.health == 0 || item.Value.energy == 0)
                         item.Value.Die();
                     item.Value.energy--;
-                    item.Value.program.Run(1000);
+                    item.Value.program.Run(200);
                 }
                 foreach (var item in toAdd)
                 {
-                    cells.Add(item.Key, item.Value);
+                    if(!cells.ContainsKey(item.Key))
+                        cells.Add(item.Key, item.Value);
                 }
                 foreach (var item in toRemove)
                 {
                     cells.Remove(item);
                 }
+
+                toAdd.Clear();
+                toRemove.Clear();
             }
 
             base.Update(gameTime);
