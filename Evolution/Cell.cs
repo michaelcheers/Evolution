@@ -90,7 +90,7 @@ namespace Evolution
 
         public byte GetVision ()
         {
-
+            return 0;
         }
 
         public void Turn (Direction value)
