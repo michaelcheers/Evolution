@@ -2,6 +2,10 @@
 {
     public enum Direction : byte
     {
-        Left, Up, Down, Right
+        Up,
+        Right,
+        Down,
+        Left,
+        Count
     }
 }

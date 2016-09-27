@@ -17,17 +17,21 @@ namespace Evolution
         Texture2D[] cellTextures;
         public int[,] foodGrid;
         public Dictionary<Point, Cell> cells;
+        public Dictionary<Point, Cell> toAdd;
+        public List<Point> toRemove;
         Point oldMouse;
         Point viewPos = new Point(0,0);
         public const int WorldW = 128;
         public const int WorldH = 128;
-        public byte[] registers;
+        public byte[] registers = new byte[256];
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            toAdd = new Dictionary<Point, Cell>();
+            toRemove = new List<Point>();
         }
 
         /// <summary>
@@ -83,10 +87,17 @@ namespace Evolution
             }
 
             cells = new Dictionary<Point, Cell>();
-            cells[new Point(10,10)] = new Cell();
-
+            for (int n = 0; n < 1000; n++)
+            {
+                Cell cell = new Cell();
+                cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
+                cell.program = new InterpreterProgram(this, new byte[] { (byte)Instruction.RegisterSet, 6, 2, (byte)Instruction.RegisterSet, 7, 18, (byte)Instruction.IfGreater, 0, 6, (byte)Instruction.Jump, 255, 7, (byte)Instruction.Turn, (byte)Direction.Right, 0, (byte)Instruction.Eat, 0, 0, (byte)Instruction.StartBreed, 0, 0, (byte)Instruction.SetProgramToRegister, 0, 0, (byte)Instruction.WriteProgramBreed, 0, 0 }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die);
+                cells[cell.location] = cell;
+            }
             oldMouse = Mouse.GetState().Position;
         }
+
+        public static Random rnd = new Random();
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -114,6 +125,26 @@ namespace Evolution
                 viewPos += oldMouse - mouse.Position;
             }
             oldMouse = mouse.Position;
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                foreach (var item in cells)
+                {
+                    registers[0] = item.Value.energy;
+                    registers[1] = item.Value.health;
+                    if (item.Value.health == 0 || item.Value.energy == 0)
+                        item.Value.Die();
+                    item.Value.energy--;
+                    item.Value.program.Run(1000);
+                }
+                foreach (var item in toAdd)
+                {
+                    cells.Add(item.Key, item.Value);
+                }
+                foreach (var item in toRemove)
+                {
+                    cells.Remove(item);
+                }
+            }
 
             base.Update(gameTime);
         }
@@ -146,16 +177,16 @@ namespace Evolution
                         Cell c = cells[p];
                         switch(c.direction)
                         {
-                            case Direction.North:
+                            case Direction.Up:
                                 spriteBatch.Draw(cellTextures[0], rect, Color.White);
                                 break;
-                            case Direction.South:
+                            case Direction.Down:
                                 spriteBatch.Draw(cellTextures[1], rect, Color.White);
                                 break;
-                            case Direction.East:
+                            case Direction.Right:
                                 spriteBatch.Draw(cellTextures[3], rect, Color.White);
                                 break;
-                            case Direction.West:
+                            case Direction.Left:
                                 spriteBatch.Draw(cellTextures[2], rect, Color.White);
                                 break;
                         }

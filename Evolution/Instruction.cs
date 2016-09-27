@@ -25,6 +25,13 @@ namespace Evolution
         Eat,
         SetProgramToRegister,
         SetProgramRegisterAtIndex,
-        Turn
+        Turn,
+        StartBreed,
+        WriteProgramBreed,
+        IfEqual0,
+        IfNotEqual0,
+        IfGreater,
+        End,
+        Die
     }
 }

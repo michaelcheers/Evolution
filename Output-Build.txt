@@ -1,0 +1,3 @@
+﻿1>------ Build started: Project: Evolution, Configuration: Debug x86 ------
+1>  Evolution -> C:\Users\Michael\OneDrive\Documents\Visual Studio 2015\Projects\Evolution\Evolution\bin\Windows\x86\Debug\Evolution.exe
+========== Build: 1 succeeded or up-to-date, 0 failed, 0 skipped ==========
