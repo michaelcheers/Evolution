@@ -133,6 +133,8 @@ namespace Evolution
                             if (registers[byte2] <= registers[byte3])
                                 location += 3;
                             break;
+                        case Instruction.GetVision:
+                            break;
                         default:
                             location++;
                             break;

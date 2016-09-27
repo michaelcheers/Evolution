@@ -68,6 +68,11 @@ namespace Evolution
             }
         }
 
+        public byte GetVision ()
+        {
+
+        }
+
         public void Turn (Direction value)
         {
             direction = (Direction)(((byte)direction + (byte)value) % (byte)Direction.Count);

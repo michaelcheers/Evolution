@@ -32,6 +32,7 @@ namespace Evolution
         IfNotEqual0,
         IfGreater,
         End,
-        Die
+        Die,
+        GetVision
     }
 }
