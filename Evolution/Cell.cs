@@ -147,7 +147,7 @@ namespace Evolution
                     return;
 
                 byte halfEnergy = (byte)(energy / 2);
-                Cell cell = program.game.dead.DefaultIfEmpty(new Cell()).First();
+                Cell cell = program.game.dead.Count == 0 ? new Cell() : program.game.dead.Dequeue();
                 {
                     cell.location = breed + location;
                     cell.direction = Unpointify(new Point(0,0)-breed);
