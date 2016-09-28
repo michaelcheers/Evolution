@@ -11,7 +11,7 @@ namespace Evolution
     public class Cell
     {
         public Direction direction;
-
+        public State state;
         public InterpreterProgram program;
         public Point location;
         public byte energy = 10;
@@ -147,7 +147,7 @@ namespace Evolution
                     return;
 
                 byte halfEnergy = (byte)(energy / 2);
-                Cell cell = new Cell();
+                Cell cell = program.game.dead.DefaultIfEmpty(new Cell()).First();
                 {
                     cell.location = breed + location;
                     cell.direction = Unpointify(new Point(0,0)-breed);
@@ -200,7 +200,8 @@ namespace Evolution
 
         public void Die ()
         {
-//            int preFoodCheck = program.game.FoodCheck();
+            //            int preFoodCheck = program.game.FoodCheck();
+            state = State.Dead;
             program.game.toRemove.Add(location);
             if(energy >= energyPerFood && location.X >= 0 && location.Y >= 0 && location.X < program.game.foodGrid.GetLength(0) && location.Y < program.game.foodGrid.GetLength(1))
             {
