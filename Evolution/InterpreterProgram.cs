@@ -9,7 +9,7 @@ namespace Evolution
     public class InterpreterProgram
     {
         public byte[] program;
-        public byte[] programReg = new byte[256];
+        public byte[] programReg = new byte[0];
         public Game1 game;
         public byte[] registers => game.registers;
         public Action Eat;
@@ -107,7 +107,10 @@ namespace Evolution
                                 Array.Copy(program, programReg, program.Length);
                             break;
                         case Instruction.SetProgramRegisterAtIndex:
-                            programReg[byte2] = registers[byte3];
+                            if (programReg.Length > registers[byte2])
+                                programReg[registers[byte2]] = registers[byte3];
+                            else
+                                Array.Resize(ref programReg, registers[byte2] + 1);
                             break;
                         case Instruction.Move:
                             Move();

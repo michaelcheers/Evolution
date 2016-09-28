@@ -15,7 +15,7 @@ namespace Evolution
         public InterpreterProgram program;
         public Point location;
         public byte energy = 10;
-        public byte health = 10;
+        public byte health = 1;
         public const int energyPerFood = 30;
         int age = 0;
 
@@ -198,6 +198,8 @@ namespace Evolution
 
         private static byte[] Corrupt(byte[] v)
         {
+            if (v.Length == 0)
+                return v;
             Random rnd = Game1.rnd;
             while (true)
             {
