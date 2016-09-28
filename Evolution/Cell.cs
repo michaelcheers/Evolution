@@ -15,7 +15,7 @@ namespace Evolution
         public Point location;
         public byte energy = 10;
         public byte health = 10;
-        public const int energyPerFood = 10;
+        public const int energyPerFood = 16;
 
         public void Eat ()
         {
@@ -90,11 +90,15 @@ namespace Evolution
 
         public byte GetVision()
         {
-            var place = location + Pointify(direction);
-            if (program.game.cells.ContainsKey(place))
-                return 255;
-            else
-                return program.game.foodGrid[place.X, place.Y];
+            var location = this.location + Pointify(direction);
+            if (new Rectangle(0, 0, program.game.foodGrid.GetLength(0), program.game.foodGrid.GetLength(1)).Contains(location))
+            {
+                if (program.game.cells.ContainsKey(location))
+                    return 255;
+                else
+                    return program.game.foodGrid[location.X, location.Y];
+            }
+            return 254;
         }
 
         public void Turn (Direction value)
