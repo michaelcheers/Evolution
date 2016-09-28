@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace Evolution
 {
@@ -163,6 +164,33 @@ namespace Evolution
                 viewPos += oldMouse - mouse.Position;
             }
             oldMouse = mouse.Position;
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                StreamWriter writer = new StreamWriter("result.txt");
+                writer.WriteLine("Food amount: " + newFoodCheck);
+                writer.WriteLine("Cells amount: " + newNumCells);
+                writer.WriteLine("Energy amount: " + newEnergyCheck);
+                writer.WriteLine();
+                foreach (var item in cells)
+                {
+                    writer.WriteLine("[" + item.Key.X + ", " + item.Key.Y + "]");
+                    writer.WriteLine("Energy: " + item.Value.energy);
+                    writer.WriteLine("Health: " + item.Value.health);
+                    var program = item.Value.program.program;
+                    for (int n = 0; n < program.Length; n += 3)
+                    {
+                        if (n + 3 > program.Length)
+                            break;
+                        var inItem = program[n];
+                        var byte2 = program[n + 1];
+                        var byte3 = program[n + 2];
+                        writer.WriteLine(string.Join(" ", ((Instruction)inItem), byte2, byte3));
+                    }
+                    writer.WriteLine();
+                }
+                writer.Flush();
+                writer.Close();
+            }
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 foreach (var item in cells)
@@ -177,7 +205,7 @@ namespace Evolution
                         item.Value.energy--;
                         registers[0] = item.Value.energy;
                         registers[1] = item.Value.health;
-                        item.Value.program.Run(10);
+                        item.Value.program.Run(1000);
                     }
                 }
 
