@@ -19,9 +19,9 @@ namespace Evolution
         public byte[,] foodGrid;
         public Dictionary<Point, Cell> cells;
         public Dictionary<Point, Cell> toAdd;
-        public List<Point> toRemove;
+        public HashSet<Point> toRemove;
         Point oldMouse;
-        Point viewPos = new Point(0,0);
+        public Point viewPos = new Point(0,0);
         public const int WorldW = 84;
         public const int WorldH = 83;
         public byte[] registers = new byte[256];
@@ -35,7 +35,7 @@ namespace Evolution
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             toAdd = new Dictionary<Point, Cell>();
-            toRemove = new List<Point>();
+            toRemove = new HashSet<Point>();
         }
 
         /// <summary>
@@ -86,22 +86,29 @@ namespace Evolution
             Random rand = new Random();
 
             foodGrid = new byte[WorldW, WorldH];
+            for (int Idx = 0; Idx < 5000; ++Idx)
+            {
+                foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
+            }
             for (int Idx = 0; Idx < 500; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)] = 255;
             }
 
             cells = new Dictionary<Point, Cell>();
-            for (int n = 0; n < 10; n++)
+            for (int n = 0; n < 1000; n++)
             {
                 Cell cell = new Cell();
-                cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
-
+                do
+                {
+                    cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
+                }
+                while (cells.ContainsKey(cell.location));
                 cell.program = new InterpreterProgram(this, new byte[]
                 {
                     (byte)Instruction.Eat, 0, 0,
                     (byte)Instruction.Move, 0, 0,
-                    (byte)Instruction.Turn, 1, 0,
+                    (byte)Instruction.TurnConstant, 1, 0,
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
@@ -113,6 +120,7 @@ namespace Evolution
 
             oldFoodCheck = FoodCheck();
             oldEnergyCheck = EnergyCheck();
+            Energy = Content.Load<SpriteFont>("Energy");
         }
 
         public static Random rnd = new Random();
@@ -177,6 +185,8 @@ namespace Evolution
                 }
                 foreach (var item in toRemove)
                 {
+                    if (!cells.ContainsKey(item))
+                        continue;
                     if (cells[item].state == State.Dead)
                     dead.Enqueue(cells[item]);
                     cells.Remove(item);
@@ -257,6 +267,7 @@ namespace Evolution
                                 spriteBatch.Draw(cellTextures[2], rect, Color.White);
                                 break;
                         }
+                        spriteBatch.DrawString(Energy, c.energy.ToString(), rect.Location.ToVector2(), Color.White);
                     }
                 }
             }
@@ -264,5 +275,6 @@ namespace Evolution
 
             base.Draw(gameTime);
         }
+        public SpriteFont Energy;
     }
 }
