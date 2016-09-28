@@ -176,6 +176,7 @@ namespace Evolution
                     cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
                     cell.state = State.Alive;
                     cell.age = 0;
+                    cell.health = 10;
                 };
                 energy -= halfEnergy;
                 program.game.registers[0] = energy;
