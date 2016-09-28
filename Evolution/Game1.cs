@@ -130,7 +130,7 @@ namespace Evolution
         int oldFoodCheck = 0;
         int oldEnergyCheck = 0;
         int oldNumCells = 0;
-        public List<Cell> dead = new List<Cell>();
+        public Queue<Cell> dead = new Queue<Cell>();
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -178,7 +178,7 @@ namespace Evolution
                 foreach (var item in toRemove)
                 {
                     if (cells[item].state == State.Dead)
-                    dead.Add(cells[item]);
+                    dead.Enqueue(cells[item]);
                     cells.Remove(item);
                 }
 
