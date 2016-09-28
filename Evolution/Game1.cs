@@ -19,7 +19,7 @@ namespace Evolution
         public byte[,] foodGrid;
         public Dictionary<Point, Cell> cells;
         public Dictionary<Point, Cell> toAdd;
-        public List<Point> toRemove;
+        public HashSet<Point> toRemove;
         Point oldMouse;
         Point viewPos = new Point(0,0);
         public const int WorldW = 84;
@@ -35,7 +35,7 @@ namespace Evolution
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             toAdd = new Dictionary<Point, Cell>();
-            toRemove = new List<Point>();
+            toRemove = new HashSet<Point>();
         }
 
         /// <summary>
@@ -86,6 +86,11 @@ namespace Evolution
             Random rand = new Random();
 
             foodGrid = new byte[WorldW, WorldH];
+            for (int Idx = 0; Idx < 10000; ++Idx)
+            {
+                foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
+            }
+
             for (int Idx = 0; Idx < 500; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)] = 255;
@@ -158,6 +163,7 @@ namespace Evolution
             {
                 foreach (var item in cells)
                 {
+                    Debug.Assert(item.Key == item.Value.location);
                     if (item.Value.health == 0 || item.Value.energy == 0)
                     {
                         item.Value.Die();
@@ -170,16 +176,45 @@ namespace Evolution
                         item.Value.program.Run(10);
                     }
                 }
-                foreach (var item in toAdd)
+
+                /*foreach (var item in toAdd)
                 {
-                    if(!cells.ContainsKey(item.Key))
-                        cells.Add(item.Key, item.Value);
+                    Debug.Assert(!toRemove.Contains(item.Key));
                 }
                 foreach (var item in toRemove)
                 {
-                    if (cells[item].state == State.Dead)
-                    dead.Enqueue(cells[item]);
+                    Debug.Assert(cells.ContainsKey(item));
+                }*/
+                foreach (var item in toRemove)
+                {
+                    Cell c = cells[item];
                     cells.Remove(item);
+
+                    if (c.state == State.Dead)
+                    {
+                        //Debug.Assert(!cells.ContainsKey(c.location));
+                        dead.Enqueue(c);
+                        c.state = State.Recycle;
+                    }
+                }
+                foreach (var item in toAdd)
+                {
+                    Debug.Assert(item.Value.state != State.Dead);
+                    if (item.Value.state == State.Recycle)
+                    {
+                        continue;
+                    }
+
+                    if (!cells.ContainsKey(item.Key))
+                    {
+                        cells.Add(item.Key, item.Value);
+                        Debug.Assert(item.Value.location == item.Key);
+                        //item.Value.location = item.Key;
+                    }
+                    else
+                    {
+                        Debug.Assert(false);
+                    }
                 }
 
                 toAdd.Clear();

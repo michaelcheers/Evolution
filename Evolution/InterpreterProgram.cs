@@ -19,7 +19,7 @@ namespace Evolution
         public Action WriteProgramBreed;
         public Action Die;
         public Func<byte> GetVision;
-        int location;
+        int pc;
 
         public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Action<Direction> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision)
         {
@@ -32,7 +32,7 @@ namespace Evolution
             this.WriteProgramBreed = WriteProgramBreed;
             this.Die = Die;
             this.GetVision = GetVision;
-            this.location = 0;
+            this.pc = 0;
         }
 
         public void Run(int cycles)
@@ -42,14 +42,14 @@ namespace Evolution
 
             for (int ran = 0; ran < cycles; ran++)
             {
-                if (location >= program.Length || location < 0)
+                if (pc >= program.Length || pc < 0)
                 {
-                    location = 0;
+                    pc = 0;
                 }
-                Instruction instruction = (Instruction)program[location];
-                byte byte2 = (location+1 < program.Length)? program[location + 1]: (byte)0;
-                byte byte3 = (location+2 < program.Length)? program[location + 2]: (byte)0;
-                location += 3;
+                Instruction instruction = (Instruction)program[pc];
+                byte byte2 = (pc+1 < program.Length)? program[pc + 1]: (byte)0;
+                byte byte3 = (pc+2 < program.Length)? program[pc + 2]: (byte)0;
+                pc += 3;
 
                 unchecked
                 {
@@ -86,7 +86,7 @@ namespace Evolution
                                 registers[byte2] /= byte3;
                             break;
                         case Instruction.Jump:
-                            location = (registers[byte2] << 8) + registers[byte3] - 3;
+                            pc = (registers[byte2] << 8) + registers[byte3] - 3;
                             break;
                         case Instruction.RegisterCopy:
                             registers[byte2] = registers[byte3];
@@ -125,21 +125,21 @@ namespace Evolution
                             return;
                         case Instruction.IfEqual0:
                             if (registers[byte2] != 0)
-                                location += 3;
+                                pc += 3;
                             break;
                         case Instruction.IfNotEqual0:
                             if (registers[byte2] == 0)
-                                location += 3;
+                                pc += 3;
                             break;
                         case Instruction.IfGreater:
                             if (registers[byte2] <= registers[byte3])
-                                location += 3;
+                                pc += 3;
                             break;
                         case Instruction.GetVision:
                             registers[byte2] = GetVision();
                             break;
                         default:
-                            location++;
+                            pc++;
                             break;
                             //throw new Exception();
                     }

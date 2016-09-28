@@ -17,6 +17,7 @@ namespace Evolution
         public byte energy = 10;
         public byte health = 10;
         public const int energyPerFood = 30;
+        int age = 0;
 
         public void Eat ()
         {
@@ -88,21 +89,27 @@ namespace Evolution
             }
         }
 
-        public void Move ()
+        public Point WrapPoint(Point p)
         {
-            Point newPos = location + Pointify(direction);
             int maxX = program.game.foodGrid.GetLength(0) - 1;
             int maxY = program.game.foodGrid.GetLength(1) - 1;
 
-            if (newPos.X < 0)
-                newPos.X = maxX;
-            else if (newPos.X == maxX)
-                newPos.X = 0;
+            if (p.X < 0)
+                p.X = maxX;
+            else if (p.X == maxX)
+                p.X = 0;
 
-            if (newPos.Y < 0)
-                newPos.Y = maxY;
-            else if (newPos.Y == maxY)
-                newPos.Y = 0;
+            if (p.Y < 0)
+                p.Y = maxY;
+            else if (p.Y == maxY)
+                p.Y = 0;
+
+            return p;
+        }
+
+        public void Move ()
+        {
+            Point newPos = location + Pointify(direction);
 
             if (!program.game.toAdd.ContainsKey(newPos))
             {
@@ -112,7 +119,9 @@ namespace Evolution
                 }
                 else
                 {
+                    //Debug.Assert(!program.game.toRemove.Contains(location));
                     program.game.toRemove.Add(location);
+                    //Debug.Assert(program.game.cells.ContainsKey(location));
                     location = newPos;
                     program.game.toAdd.Add(newPos, this);
                 }
@@ -121,13 +130,13 @@ namespace Evolution
 
         public byte GetVision()
         {
-            var location = this.location + Pointify(direction);
-            if (new Rectangle(0, 0, program.game.foodGrid.GetLength(0), program.game.foodGrid.GetLength(1)).Contains(location))
+            var target = this.location + Pointify(direction);
+            if (new Rectangle(0, 0, program.game.foodGrid.GetLength(0), program.game.foodGrid.GetLength(1)).Contains(target))
             {
-                if (program.game.cells.ContainsKey(location))
+                if (program.game.cells.ContainsKey(target))
                     return 255;
                 else
-                    return program.game.foodGrid[location.X, location.Y];
+                    return program.game.foodGrid[target.X, target.Y];
             }
             return 254;
         }
@@ -141,22 +150,38 @@ namespace Evolution
         {
             if (energy > 2)
             {
-                breed = new Point(0,0)-Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
-                Point targetPos = breed + location;
+                breed = new Point(0, 0) - Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
+                Point targetPos = WrapPoint(breed + location);
                 if (program.game.cells.ContainsKey(targetPos))
                     return;
 
                 byte halfEnergy = (byte)(energy / 2);
-                Cell cell = program.game.dead.Count == 0 ? new Cell() : program.game.dead.Dequeue();
+                Cell cell;
+                if (program.game.dead.Count == 0)
                 {
-                    cell.location = breed + location;
+                    cell = new Cell();
+                }
+                else
+                {
+                    cell = program.game.dead.Dequeue();
+                    //Debug.Assert(!program.game.cells.ContainsKey(cell.location) || program.game.cells[cell.location] != cell);
+                }
+
+                {
+                    cell.location = targetPos;
                     cell.direction = Unpointify(new Point(0,0)-breed);
                     cell.energy = halfEnergy;
                     cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
+                    cell.state = State.Alive;
+                    cell.age = 0;
                 };
                 energy -= halfEnergy;
                 program.game.registers[0] = energy;
-                program.game.toAdd[breed + location] = cell;
+                program.game.toAdd[targetPos] = cell;
+                age++;
+
+                //if (age >= 10)
+                //    Die();
             }
         }
 
@@ -202,8 +227,11 @@ namespace Evolution
         {
             //            int preFoodCheck = program.game.FoodCheck();
             state = State.Dead;
+            Debug.Assert(!program.game.toRemove.Contains(location));
             program.game.toRemove.Add(location);
-            if(energy >= energyPerFood && location.X >= 0 && location.Y >= 0 && location.X < program.game.foodGrid.GetLength(0) && location.Y < program.game.foodGrid.GetLength(1))
+            Debug.Assert(program.game.cells.ContainsKey(location));
+
+            if (energy >= energyPerFood && location.X >= 0 && location.Y >= 0 && location.X < program.game.foodGrid.GetLength(0) && location.Y < program.game.foodGrid.GetLength(1))
             {
                 int oldFood = program.game.foodGrid[location.X, location.Y];
                 int foodDropped = (int)(energy / energyPerFood);

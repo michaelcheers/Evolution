@@ -3,6 +3,7 @@
     public enum State
     {
         Alive,
-        Dead
+        Dead,
+        Recycle
     }
 }
