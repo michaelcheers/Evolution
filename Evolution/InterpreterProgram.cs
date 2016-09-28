@@ -113,6 +113,9 @@ namespace Evolution
                             Move();
                             return;
                         case Instruction.Turn:
+                            Turn((Direction)registers[byte2]);
+                            break;
+                        case Instruction.TurnConstant:
                             Turn((Direction)byte2);
                             break;
                         case Instruction.StartBreed:

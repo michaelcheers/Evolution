@@ -33,6 +33,7 @@ namespace Evolution
         IfGreater,
         End,
         Die,
-        GetVision
+        GetVision,
+        TurnConstant
     }
 }

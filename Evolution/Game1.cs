@@ -21,7 +21,7 @@ namespace Evolution
         public Dictionary<Point, Cell> toAdd;
         public HashSet<Point> toRemove;
         Point oldMouse;
-        Point viewPos = new Point(0,0);
+        public Point viewPos = new Point(0,0);
         public const int WorldW = 84;
         public const int WorldH = 83;
         public byte[] registers = new byte[256];
@@ -100,13 +100,16 @@ namespace Evolution
             for (int n = 0; n < 10; n++)
             {
                 Cell cell = new Cell();
-                cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
-
+                do
+                {
+                    cell.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
+                }
+                while (cells.ContainsKey(cell.location));
                 cell.program = new InterpreterProgram(this, new byte[]
                 {
                     (byte)Instruction.Eat, 0, 0,
                     (byte)Instruction.Move, 0, 0,
-                    (byte)Instruction.Turn, 1, 0,
+                    (byte)Instruction.TurnConstant, 1, 0,
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
@@ -118,6 +121,7 @@ namespace Evolution
 
             oldFoodCheck = FoodCheck();
             oldEnergyCheck = EnergyCheck();
+            Energy = Content.Load<SpriteFont>("Energy");
         }
 
         public static Random rnd = new Random();
@@ -183,6 +187,7 @@ namespace Evolution
                 }
                 foreach (var item in toRemove)
                 {
+<<<<<<< HEAD
                     Debug.Assert(cells.ContainsKey(item));
                 }*/
                 foreach (var item in toRemove)
@@ -263,6 +268,8 @@ namespace Evolution
             int maxX = Math.Min( (viewPos.X + Window.ClientBounds.Width)/16 + 1, WorldW);
             int maxY = Math.Min( (viewPos.Y + Window.ClientBounds.Height)/16 + 1, WorldH);
 
+            MouseState mouseState = Mouse.GetState();
+
             for (int x = minX; x < maxX; x++)
             {
                 for(int y = minY; y < maxY; y++)
@@ -295,9 +302,18 @@ namespace Evolution
                     }
                 }
             }
+
+            Point mouseGridPos = new Point((mouseState.Position.X + viewPos.X) / 16, (mouseState.Position.Y + viewPos.Y) / 16);
+            if(cells.ContainsKey(mouseGridPos))
+            {
+                Cell c = cells[mouseGridPos];
+                spriteBatch.DrawString(Energy, c.energy.ToString(), new Vector2(mouseGridPos.X * 16 - viewPos.X, mouseGridPos.Y * 16 - viewPos.Y), Color.White);
+            }
+
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
+        public SpriteFont Energy;
     }
 }

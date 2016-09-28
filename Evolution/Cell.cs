@@ -107,6 +107,8 @@ namespace Evolution
             return p;
         }
 
+        public Rectangle Pos => new Rectangle(location.X * 16 - program.game.viewPos.X, location.Y * 16 - program.game.viewPos.Y, 16, 16);
+
         public void Move ()
         {
             Point newPos = location + Pointify(direction);
