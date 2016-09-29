@@ -20,12 +20,14 @@ namespace Evolution
         public byte[,] foodGrid;
         public Dictionary<Point, Cell> cells;
         public Dictionary<Point, Cell> toAdd;
+        public List<FoodSource> foodSources;
         public HashSet<Point> toRemove;
         Point oldMouse;
         public Point viewPos = new Point(0,0);
         public const int WorldW = 84;
         public const int WorldH = 83;
         public byte[] registers = new byte[256];
+        public bool paused = true;
 
         public Game1()
         {
@@ -92,9 +94,19 @@ namespace Evolution
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)]++;
             }
 
-            for (int Idx = 0; Idx < 500; ++Idx)
+            for (int Idx = 0; Idx < 100; ++Idx)
             {
                 foodGrid[rand.Next(0, WorldW), rand.Next(0, WorldH)] = 255;
+            }
+
+            foodSources = new List<FoodSource>();
+            for (int n = 0; n < 6; n++)
+            {
+                FoodSource newSource = new FoodSource();
+                newSource.location = new Point(rnd.Next(foodGrid.GetLength(0)), rnd.Next(foodGrid.GetLength(1)));
+                newSource.game = this;
+                newSource.direction = (Direction)rnd.Next(4);
+                foodSources.Add(newSource);
             }
 
             cells = new Dictionary<Point, Cell>();
@@ -144,10 +156,16 @@ namespace Evolution
 
         public void Frame ()
         {
+            foreach(var foodSource in foodSources)
+            {
+                foodSource.Update();
+            }
+
             foreach (var item in cells)
             {
                 Debug.Assert(item.Key == item.Value.location);
-                if (item.Value.health == 0 || item.Value.energy == 0)
+                item.Value.age++;
+                if (item.Value.health == 0 || item.Value.energy == 0 || item.Value.age >= 500)
                 {
                     item.Value.Die();
                 }
@@ -255,8 +273,12 @@ namespace Evolution
             else if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
                 for (int n = 0; n < 10; n++)
                     Frame();
-            else if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            else if (Keyboard.GetState().IsKeyDown(Keys.Space) || !paused)
                 Frame();
+            else if (Keyboard.GetState().IsKeyDown(Keys.P))
+            {
+                paused = !paused;
+            }
 
             base.Update(gameTime);
         }

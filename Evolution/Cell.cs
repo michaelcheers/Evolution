@@ -18,7 +18,7 @@ namespace Evolution
         public byte health = startingHealth;
         public const int startingHealth = 1;
         public const int energyPerFood = 30;
-        int age = 0;
+        public int age = 0;
 
         public void Eat ()
         {
@@ -90,19 +90,19 @@ namespace Evolution
             }
         }
 
-        public Point WrapPoint(Point p)
+        public static Point WrapPoint(byte[,] grid, Point p)
         {
-            int maxX = program.game.foodGrid.GetLength(0) - 1;
-            int maxY = program.game.foodGrid.GetLength(1) - 1;
+            int maxX = grid.GetLength(0) - 1;
+            int maxY = grid.GetLength(1) - 1;
 
             if (p.X < 0)
                 p.X = maxX;
-            else if (p.X == maxX)
+            else if (p.X >= maxX)
                 p.X = 0;
 
             if (p.Y < 0)
                 p.Y = maxY;
-            else if (p.Y == maxY)
+            else if (p.Y >= maxY)
                 p.Y = 0;
 
             return p;
@@ -154,7 +154,7 @@ namespace Evolution
             if (energy > 2)
             {
                 breed = new Point(0, 0) - Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
-                Point targetPos = WrapPoint(breed + location);
+                Point targetPos = WrapPoint(program.game.foodGrid, breed + location);
                 if (program.game.toAdd.ContainsKey(targetPos))
                     return true;
                 if (program.game.cells.ContainsKey(targetPos))
@@ -186,9 +186,6 @@ namespace Evolution
                 program.game.registers[0] = energy < 255 ? (byte)energy : (byte)255;
                 program.game.toAdd[targetPos] = cell;
                 age++;
-
-                //if (age >= 10)
-                //    Die();
             }
             return false;
         }
