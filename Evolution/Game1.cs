@@ -98,7 +98,7 @@ namespace Evolution
             }
 
             cells = new Dictionary<Point, Cell>();
-            for (int n = 0; n < 10; n++)
+            for (int n = 0; n < 1000; n++)
             {
                 Cell cell = new Cell();
                 do
@@ -141,6 +141,69 @@ namespace Evolution
         int oldEnergyCheck = 0;
         int oldNumCells = 0;
         public Queue<Cell> dead = new Queue<Cell>();
+
+        public void Frame ()
+        {
+            foreach (var item in cells)
+            {
+                Debug.Assert(item.Key == item.Value.location);
+                if (item.Value.health == 0 || item.Value.energy == 0)
+                {
+                    item.Value.Die();
+                }
+                else
+                {
+                    item.Value.energy--;
+                    registers[0] = item.Value.energy < 255 ? (byte)item.Value.energy : (byte)255;
+                    registers[1] = item.Value.health;
+                    item.Value.program.Run(1000);
+                }
+            }
+
+            /*foreach (var item in toAdd)
+            {
+                Debug.Assert(!toRemove.Contains(item.Key));
+            }
+            foreach (var item in toRemove)
+            {
+<<<<<<< HEAD
+                Debug.Assert(cells.ContainsKey(item));
+            }*/
+            foreach (var item in toRemove)
+            {
+                Cell c = cells[item];
+                cells.Remove(item);
+
+                if (c.state == State.Dead)
+                {
+                    //Debug.Assert(!cells.ContainsKey(c.location));
+                    dead.Enqueue(c);
+                    c.state = State.Recycle;
+                }
+            }
+            foreach (var item in toAdd)
+            {
+                Debug.Assert(item.Value.state != State.Dead);
+                if (item.Value.state == State.Recycle)
+                {
+                    continue;
+                }
+
+                if (!cells.ContainsKey(item.Key))
+                {
+                    cells.Add(item.Key, item.Value);
+                    Debug.Assert(item.Value.location == item.Key);
+                    //item.Value.location = item.Key;
+                }
+                else
+                {
+                    Debug.Assert(false);
+                }
+            }
+
+            toAdd.Clear();
+            toRemove.Clear();
+        }
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -191,68 +254,14 @@ namespace Evolution
                 writer.Flush();
                 writer.Close();
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                foreach (var item in cells)
-                {
-                    Debug.Assert(item.Key == item.Value.location);
-                    if (item.Value.health == 0 || item.Value.energy == 0)
-                    {
-                        item.Value.Die();
-                    }
-                    else
-                    {
-                        item.Value.energy--;
-                        registers[0] = item.Value.energy;
-                        registers[1] = item.Value.health;
-                        item.Value.program.Run(1000);
-                    }
-                }
-
-                /*foreach (var item in toAdd)
-                {
-                    Debug.Assert(!toRemove.Contains(item.Key));
-                }
-                foreach (var item in toRemove)
-                {
-<<<<<<< HEAD
-                    Debug.Assert(cells.ContainsKey(item));
-                }*/
-                foreach (var item in toRemove)
-                {
-                    Cell c = cells[item];
-                    cells.Remove(item);
-
-                    if (c.state == State.Dead)
-                    {
-                        //Debug.Assert(!cells.ContainsKey(c.location));
-                        dead.Enqueue(c);
-                        c.state = State.Recycle;
-                    }
-                }
-                foreach (var item in toAdd)
-                {
-                    Debug.Assert(item.Value.state != State.Dead);
-                    if (item.Value.state == State.Recycle)
-                    {
-                        continue;
-                    }
-
-                    if (!cells.ContainsKey(item.Key))
-                    {
-                        cells.Add(item.Key, item.Value);
-                        Debug.Assert(item.Value.location == item.Key);
-                        //item.Value.location = item.Key;
-                    }
-                    else
-                    {
-                        Debug.Assert(false);
-                    }
-                }
-
-                toAdd.Clear();
-                toRemove.Clear();
-            }
+            if (Keyboard.GetState().IsKeyDown(Keys.LeftControl))
+                for (int n = 0; n < 100; n++)
+                    Frame();
+            else if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                for (int n = 0; n < 10; n++)
+                    Frame();
+            else if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                Frame();
 
             base.Update(gameTime);
         }

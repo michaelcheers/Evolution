@@ -14,9 +14,10 @@ namespace Evolution
         public State state;
         public InterpreterProgram program;
         public Point location;
-        public byte energy = 10;
-        public byte health = 1;
-        public const int energyPerFood = 30;
+        public int energy = 10;
+        public byte health = startingHealth;
+        public const int startingHealth = 1;
+        public const int energyPerFood = 4;
         int age = 0;
 
         public void Eat ()
@@ -32,7 +33,7 @@ namespace Evolution
                     unchecked
                     {
                         energy += (byte)(amountEaten * Cell.energyPerFood);
-                        program.game.registers[0] = energy;
+                        program.game.registers[0] = energy < 255 ? (byte)energy : (byte)255;
                     }
                     if (program.game.foodGrid[location.X, location.Y] != 255)
                     {
@@ -176,10 +177,10 @@ namespace Evolution
                     cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
                     cell.state = State.Alive;
                     cell.age = 0;
-                    cell.health = 10;
+                    cell.health = startingHealth;
                 };
                 energy -= halfEnergy;
-                program.game.registers[0] = energy;
+                program.game.registers[0] = energy < 255 ? (byte)energy : (byte)255;
                 program.game.toAdd[targetPos] = cell;
                 age++;
 
