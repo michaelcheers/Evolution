@@ -17,7 +17,7 @@ namespace Evolution
         public int energy = 10;
         public byte health = startingHealth;
         public const int startingHealth = 1;
-        public const int energyPerFood = 4;
+        public const int energyPerFood = 30;
         int age = 0;
 
         public void Eat ()
@@ -149,14 +149,16 @@ namespace Evolution
             direction = (Direction)(((byte)direction + (byte)value) % (byte)Direction.Count);
         }
         
-        public void StartBreed (Direction value)
+        public bool StartBreed (Direction value)
         {
             if (energy > 2)
             {
                 breed = new Point(0, 0) - Pointify((Direction)(((byte)direction + (byte)value) % (byte)Direction.Count));
                 Point targetPos = WrapPoint(breed + location);
+                if (program.game.toAdd.ContainsKey(targetPos))
+                    return true;
                 if (program.game.cells.ContainsKey(targetPos))
-                    return;
+                    return false;
 
                 byte halfEnergy = (byte)(energy / 2);
                 Cell cell;
@@ -171,6 +173,7 @@ namespace Evolution
                 }
 
                 {
+                    cell.state = State.Dead;
                     cell.location = targetPos;
                     cell.direction = Unpointify(new Point(0,0)-breed);
                     cell.energy = halfEnergy;
@@ -187,6 +190,7 @@ namespace Evolution
                 //if (age >= 10)
                 //    Die();
             }
+            return false;
         }
 
         public Point breed;
@@ -194,7 +198,8 @@ namespace Evolution
         public void WriteProgramBreed ()
         {
             if (program.game.toAdd.ContainsKey(location + breed))
-            program.game.toAdd[location + breed].program.program = Corrupt(Enumerable.Concat(program.game.toAdd[location + breed].program.program, program.programReg).ToArray());
+                if (program.game.toAdd[location + breed].state == State.Dead)
+                    program.game.toAdd[location + breed].program.program = Corrupt(Enumerable.Concat(program.game.toAdd[location + breed].program.program, program.programReg).ToArray());
         }
 
         private static byte[] Corrupt(byte[] v)

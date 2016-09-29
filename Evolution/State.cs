@@ -4,6 +4,7 @@
     {
         Alive,
         Dead,
-        Recycle
+        Recycle,
+        Born
     }
 }

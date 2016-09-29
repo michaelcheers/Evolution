@@ -15,13 +15,13 @@ namespace Evolution
         public Action Eat;
         public Action Move;
         public Action<Direction> Turn;
-        public Action<Direction> StartBreed;
+        public Func<Direction, bool> StartBreed;
         public Action WriteProgramBreed;
         public Action Die;
         public Func<byte> GetVision;
         int pc;
 
-        public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Action<Direction> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision)
+        public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Func<Direction, bool> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision)
         {
             this.program = program;
             this.game = game;
@@ -122,7 +122,8 @@ namespace Evolution
                             Turn((Direction)byte2);
                             break;
                         case Instruction.StartBreed:
-                            StartBreed((Direction)byte2);
+                            if (StartBreed((Direction)byte2))
+                                return;
                             break;
                         case Instruction.WriteProgramBreed:
                             WriteProgramBreed();
