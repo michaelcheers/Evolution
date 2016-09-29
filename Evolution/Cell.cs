@@ -20,6 +20,23 @@ namespace Evolution
         public const int energyPerFood = 30;
         public int age = 0;
 
+        public Color color
+        {
+            get {
+                if (program.program.Length < 3)
+                {
+                    return Color.White;
+                }
+                else
+                {
+                    return new Color(128 + program.program[program.program.Length - 3] / 2,
+                        program.program[program.program.Length - 2],
+                        program.program[program.program.Length - 1],
+                        255);
+                }
+            }
+        }
+
         public void Eat ()
         {
             if (new Rectangle(0, 0, program.game.foodGrid.GetLength(0), program.game.foodGrid.GetLength(1)).Contains(location))

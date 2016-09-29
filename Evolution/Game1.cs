@@ -341,16 +341,16 @@ namespace Evolution
                         switch(c.direction)
                         {
                             case Direction.Up:
-                                spriteBatch.Draw(cellTextures[0], rect, Color.White);
+                                spriteBatch.Draw(cellTextures[0], rect, c.color);
                                 break;
                             case Direction.Down:
-                                spriteBatch.Draw(cellTextures[1], rect, Color.White);
+                                spriteBatch.Draw(cellTextures[1], rect, c.color);
                                 break;
                             case Direction.Right:
-                                spriteBatch.Draw(cellTextures[3], rect, Color.White);
+                                spriteBatch.Draw(cellTextures[3], rect, c.color);
                                 break;
                             case Direction.Left:
-                                spriteBatch.Draw(cellTextures[2], rect, Color.White);
+                                spriteBatch.Draw(cellTextures[2], rect, c.color);
                                 break;
                         }
                     }
