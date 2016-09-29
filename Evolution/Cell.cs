@@ -178,7 +178,7 @@ namespace Evolution
                     cell.direction = Unpointify(new Point(0,0)-breed);
                     cell.energy = halfEnergy;
                     cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
-                    cell.state = State.Alive;
+                    cell.state = State.Born;
                     cell.age = 0;
                     cell.health = startingHealth;
                 };
@@ -198,8 +198,14 @@ namespace Evolution
         public void WriteProgramBreed ()
         {
             if (program.game.toAdd.ContainsKey(location + breed))
-                if (program.game.toAdd[location + breed].state == State.Dead)
-                    program.game.toAdd[location + breed].program.program = Corrupt(Enumerable.Concat(program.game.toAdd[location + breed].program.program, program.programReg).ToArray());
+            {
+                Cell targetCell = program.game.toAdd[location + breed];
+                if (targetCell.state == State.Born)
+                {
+                    targetCell.program.program = Corrupt(Enumerable.Concat(targetCell.program.program, program.programReg).ToArray());
+                    targetCell.state = State.Alive;
+                }
+            }
         }
 
         private static byte[] Corrupt(byte[] v)

@@ -98,7 +98,7 @@ namespace Evolution
             }
 
             cells = new Dictionary<Point, Cell>();
-            for (int n = 0; n < 1000; n++)
+            for (int n = 0; n < 100; n++)
             {
                 Cell cell = new Cell();
                 do
@@ -184,12 +184,7 @@ namespace Evolution
             foreach (var item in toAdd)
             {
                 Debug.Assert(item.Value.state != State.Dead);
-                if (item.Value.state == State.Recycle)
-                {
-                    continue;
-                }
-
-                if (!cells.ContainsKey(item.Key))
+                if (item.Value.state == State.Alive && !cells.ContainsKey(item.Key))
                 {
                     cells.Add(item.Key, item.Value);
                     Debug.Assert(item.Value.location == item.Key);
@@ -197,7 +192,7 @@ namespace Evolution
                 }
                 else
                 {
-                    Debug.Assert(false);
+                    Debug.Assert(item.Value.state != State.Dead);
                 }
             }
 
