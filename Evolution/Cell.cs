@@ -238,19 +238,18 @@ namespace Evolution
                         v[rnd.Next(v.Length)] += (byte)(rnd.Next(2) - 1);
                         break;
                     default:
-                        return v;
+                        if (rnd.Next(2) == 1)
+                        {
+                            var nc = new byte[v.Length + 1];
+                            v.CopyTo(nc, 1);
+                            nc[0] = (byte)rnd.Next(256);
+                            v = nc;
+                            break;
+                        }
+                        else
+                            return v;
                 }
 
-                /*else if (rnd.Next(2) == 1)
-                {
-                    var nc = new byte[v.Length + 1];
-                    v.CopyTo(nc, 1);
-                    nc[0] = (byte)rnd.Next(256);
-                    v = nc;
-                }
-                else
-                    return v;
-                    */
             }
         }
 
