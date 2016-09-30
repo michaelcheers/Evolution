@@ -270,7 +270,7 @@ namespace Evolution
             if (Keyboard.GetState().IsKeyDown(Keys.LeftControl))
                 for (int n = 0; n < 100; n++)
                     Frame();
-            else if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+            else if (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || !paused10)
                 for (int n = 0; n < 10; n++)
                     Frame();
             else if (Keyboard.GetState().IsKeyDown(Keys.Space) || !paused)
@@ -279,6 +279,8 @@ namespace Evolution
             {
                 paused = !paused;
             }
+            else if (Keyboard.GetState().IsKeyDown(Keys.J))
+                paused10 = !paused10;
 
             base.Update(gameTime);
         }
@@ -369,5 +371,6 @@ namespace Evolution
             base.Draw(gameTime);
         }
         public SpriteFont Energy;
+        private bool paused10 = true;
     }
 }
