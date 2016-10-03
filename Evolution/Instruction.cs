@@ -34,6 +34,7 @@ namespace Evolution
         End,
         Die,
         GetVision,
-        TurnConstant
+        TurnConstant,
+        IfNotOnFood
     }
 }

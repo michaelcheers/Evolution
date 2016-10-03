@@ -129,7 +129,7 @@ namespace Evolution
 
         public void Move ()
         {
-            Point newPos = location + Pointify(direction);
+            Point newPos = WrapPoint(program.game.foodGrid, location + Pointify(direction));
 
             if (!program.game.toAdd.ContainsKey(newPos))
             {
@@ -194,7 +194,7 @@ namespace Evolution
                     cell.location = targetPos;
                     cell.direction = Unpointify(new Point(0,0)-breed);
                     cell.energy = halfEnergy;
-                    cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
+                    cell.program = new InterpreterProgram(program.game, new byte[] { }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision, cell.OnFood);
                     cell.state = State.Born;
                     cell.age = 0;
                     cell.health = startingHealth;
@@ -205,6 +205,11 @@ namespace Evolution
                 age++;
             }
             return false;
+        }
+
+        public bool OnFood()
+        {
+            return program.game.foodGrid[location.X, location.Y] != 0;
         }
 
         public Point breed;

@@ -127,7 +127,7 @@ namespace Evolution
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
-                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
+                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision, cell.OnFood);
 
                 cells[cell.location] = cell;
             }
@@ -272,7 +272,7 @@ namespace Evolution
                         location = pos,
                         state = State.Alive
                     };
-                    cell.program = new InterpreterProgram(this, program, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
+                    cell.program = new InterpreterProgram(this, program, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision, cell.OnFood);
                     cells.Add(pos, cell);
                 }
                 while (true)

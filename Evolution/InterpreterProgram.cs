@@ -19,19 +19,21 @@ namespace Evolution
         public Action WriteProgramBreed;
         public Action Die;
         public Func<byte> GetVision;
+        public Func<bool> OnFood;
         int pc;
 
-        public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Func<Direction, bool> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision)
+        public InterpreterProgram(Game1 game, byte[] program, Action Eat, Action Move, Action<Direction> Turn, Func<Direction, bool> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision, Func<bool> OnFood)
         {
             this.program = program;
             this.game = game;
-            Eat = eat;
-            Move = move;
-            Turn = turn;
+            this.Eat = Eat;
+            this.Move = Move;
+            this.Turn = Turn;
             this.StartBreed = StartBreed;
             this.WriteProgramBreed = WriteProgramBreed;
             this.Die = Die;
             this.GetVision = GetVision;
+            this.OnFood = OnFood;
             this.pc = 0;
         }
 
@@ -140,6 +142,10 @@ namespace Evolution
                             break;
                         case Instruction.IfGreater:
                             if (registers[byte2] <= registers[byte3])
+                                pc += 3;
+                            break;
+                        case Instruction.IfNotOnFood:
+                            if (OnFood())
                                 pc += 3;
                             break;
                         case Instruction.GetVision:
