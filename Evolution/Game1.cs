@@ -123,8 +123,8 @@ namespace Evolution
                     (byte)Instruction.Eat, 0, 0,
                     (byte)Instruction.Move, 0, 0,
                     (byte)Instruction.TurnConstant, 1, 0,
-                    (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.SetProgramToRegister, 0, 0,
+                    (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
                 }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
 
@@ -240,6 +240,12 @@ namespace Evolution
                 viewPos += oldMouse - mouse.Position;
             }
             oldMouse = mouse.Position;
+            if (viewPos.X < 0)
+                viewPos.X = 0;
+            if (viewPos.Y < 0)
+                viewPos.Y = 0;
+
+
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
                 StreamWriter writer = new StreamWriter("result.txt");
@@ -275,11 +281,11 @@ namespace Evolution
                     Frame();
             else if (Keyboard.GetState().IsKeyDown(Keys.Space) || !paused)
                 Frame();
-            else if (Keyboard.GetState().IsKeyDown(Keys.P))
-            {
+
+            if (Keyboard.GetState().IsKeyDown(Keys.P))
                 paused = !paused;
-            }
-            else if (Keyboard.GetState().IsKeyDown(Keys.J))
+
+            if (Keyboard.GetState().IsKeyDown(Keys.J))
                 paused10 = !paused10;
 
             base.Update(gameTime);
