@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 
 namespace Evolution
@@ -241,6 +242,20 @@ namespace Evolution
                 viewPos += oldMouse - mouse.Position;
             }
             oldMouse = mouse.Position;
+            if (videoReader != null)
+            {
+                if (videoReader.BaseStream.Position == videoReader.BaseStream.Length)
+                    videoReader.Close();
+                if (videoReader.BaseStream.CanRead)
+                {
+                    registers = videoReader.ReadBytes(256);
+                    return;
+                }
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.V) && videoWriter == null)
+                videoWriter = new BinaryWriter(new GZipStream(File.OpenWrite("video.vid"), CompressionMode.Compress));
+            else if (Keyboard.GetState().IsKeyDown(Keys.E) && videoWriter != null)
+                videoWriter.Dispose();
             if (Keyboard.GetState().IsKeyDown(Keys.L))
             {
                 var openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -357,6 +372,44 @@ namespace Evolution
             else if (Keyboard.GetState().IsKeyDown(Keys.J))
                 paused10 = !paused10;
 
+            if (Keyboard.GetState().IsKeyDown(Keys.R))
+            {
+                var openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                openFileDialog.ShowDialog();
+                videoReader = new BinaryReader(new GZipStream(openFileDialog.OpenFile(), CompressionMode.Decompress));
+            }
+
+            if (videoWriter != null)
+                if (videoWriter.BaseStream.CanWrite)
+                {
+                    videoWriter.Write(registers);
+                    videoWriter.Write(foodGrid.Length);
+                    byte[] copyTo = new byte[foodGrid.Length];
+                    Buffer.BlockCopy(foodGrid, 0, copyTo, 0, foodGrid.Length);
+                    videoWriter.Write(copyTo);
+                    videoWriter.Write(foodSources.Count);
+                    foreach (var item in foodSources)
+                    {
+                        videoWriter.Write((byte)item.direction);
+                        videoWriter.Write((byte)item.location.X);
+                        videoWriter.Write((byte)item.location.Y);
+                    }
+                    videoWriter.Write(cells.Count);
+                    foreach (var item in cells)
+                    {
+                        videoWriter.Write((byte)item.Value.age);
+                        videoWriter.Write((byte)item.Value.direction);
+                        videoWriter.Write((ushort)item.Value.energy);
+                        videoWriter.Write((byte)item.Value.health);
+                        videoWriter.Write((byte)item.Value.location.X);
+                        videoWriter.Write((byte)item.Value.location.Y);
+                        videoWriter.Write(item.Value.program.program.Length);
+                        videoWriter.Write(item.Value.program.program);
+                        videoWriter.Write(item.Value.program.programReg.Length);
+                        videoWriter.Write(item.Value.program.programReg);
+                    }
+                }
+
             base.Update(gameTime);
         }
 
@@ -454,5 +507,7 @@ namespace Evolution
         }
         public SpriteFont Energy;
         private bool paused10 = true;
+        private BinaryWriter videoWriter;
+        private BinaryReader videoReader;
     }
 }
