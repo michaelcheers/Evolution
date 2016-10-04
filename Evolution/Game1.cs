@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Evolution
 {
@@ -126,7 +127,7 @@ namespace Evolution
                     (byte)Instruction.SetProgramToRegister, 0, 0,
                     (byte)Instruction.StartBreed, 0, 0,
                     (byte)Instruction.WriteProgramBreed, 0, 0
-                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision);
+                }, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision, cell.OnFood, cell.GiveEnergy);
 
                 cells[cell.location] = cell;
             }
@@ -240,11 +241,77 @@ namespace Evolution
                 viewPos += oldMouse - mouse.Position;
             }
             oldMouse = mouse.Position;
+
             if (viewPos.X < 0)
                 viewPos.X = 0;
             if (viewPos.Y < 0)
                 viewPos.Y = 0;
 
+            if (Keyboard.GetState().IsKeyDown(Keys.L))
+            {
+                var openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                openFileDialog.ShowDialog();
+                StreamReader reader = new StreamReader(openFileDialog.OpenFile());
+                cells.Clear();
+                for (int n = 0; n < 4; n++)
+                    reader.ReadLine();
+                while (true)
+                {
+                    string read = reader.ReadLine();
+                    if (string.IsNullOrEmpty(read) || read == "Food Grid")
+                        break;
+                    Point pos = ParsePoint(read);
+                    int energy = int.Parse(reader.ReadLine().Substring(8));
+                    int health = int.Parse(reader.ReadLine().Substring(8));
+                    string readline;
+                    byte[] program = new byte[] { };
+                    while ((readline = reader.ReadLine()) != string.Empty)
+                    {
+                        string[] split = readline.Split(' ');
+                        byte[] splitByte = Array.ConvertAll(split, v => (byte)(Instruction)Enum.Parse(typeof(Instruction), v));
+                        program = program.Concat(splitByte).ToArray();
+                    }
+                    Cell cell = new Cell
+                    {
+                        energy = energy,
+                        health = (byte)health,
+                        location = pos,
+                        state = State.Alive
+                    };
+                    cell.program = new InterpreterProgram(this, program, cell.Eat, cell.Move, cell.Turn, cell.StartBreed, cell.WriteProgramBreed, cell.Die, cell.GetVision, cell.OnFood, cell.GiveEnergy);
+                    cells.Add(pos, cell);
+                }
+                while (true)
+                {
+                    string read = reader.ReadLine();
+                    if (string.IsNullOrEmpty(read) || read == "Food Sources")
+                        break;
+                    var split = read.Split('=');
+                    split[0] = split[0].Substring(0, split[0].Length - 1);
+                    split[1] = split[1].Substring(1);
+                    Point parse = ParsePoint(split[0]);
+                    byte value = byte.Parse(split[1]);
+                    foodGrid[parse.X, parse.Y] = value;
+                }
+                foodSources.Clear();
+                while (true)
+                {
+                    string read = reader.ReadLine();
+                    if (string.IsNullOrEmpty(read))
+                        break;
+                    var split = read.Split('=');
+                    split[0] = split[0].Substring(0, split[0].Length - 1);
+                    split[1] = split[1].Substring(1);
+                    Point parse = ParsePoint(split[0]);
+                    Direction direction = (Direction)Enum.Parse(typeof(Direction), split[1]);
+                    foodSources.Add(new FoodSource
+                    {
+                        direction = direction,
+                        game = this,
+                        location = parse
+                    });
+                }
+            }
 
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
@@ -270,6 +337,15 @@ namespace Evolution
                     }
                     writer.WriteLine();
                 }
+                writer.WriteLine("Food Grid");
+                for (int x = 0; x < foodGrid.GetLength(0); x++)
+                    for (int y = 0; y < foodGrid.GetLength(1); y++)
+                    {
+                        writer.WriteLine("[" + x + ", " + y + "] = " + foodGrid[x, y]);
+                    }
+                writer.WriteLine("Food Sources");
+                foreach (var item in foodSources)
+                    writer.WriteLine("[{0}, {1}] = {2}", item.location.X, item.location.Y, item.direction);
                 writer.Flush();
                 writer.Close();
             }
@@ -289,6 +365,13 @@ namespace Evolution
                 paused10 = !paused10;
 
             base.Update(gameTime);
+        }
+
+        private static Point ParsePoint(string v)
+        {
+            var @string = v.Substring(1, v.Length - 2);
+            var split = @string.Split(',');
+            return new Point(int.Parse(split[0]), int.Parse(split[1].Substring(1)));
         }
 
         public int FoodCheck()

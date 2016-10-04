@@ -19,19 +19,24 @@ namespace Evolution
         public Action WriteProgramBreed;
         public Action Die;
         public Func<byte> GetVision;
+        public Func<bool> OnFood;
+        public delegate void EnergyFn(Direction dir, byte amount);
+        public EnergyFn GiveEnergy;
         int pc;
 
-        public InterpreterProgram(Game1 game, byte[] program, Action eat, Action move, Action<Direction> turn, Func<Direction, bool> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision)
+        public InterpreterProgram(Game1 game, byte[] program, Action Eat, Action Move, Action<Direction> Turn, Func<Direction, bool> StartBreed, Action WriteProgramBreed, Action Die, Func<byte> GetVision, Func<bool> OnFood, EnergyFn GiveEnergy)
         {
             this.program = program;
             this.game = game;
-            Eat = eat;
-            Move = move;
-            Turn = turn;
+            this.Eat = Eat;
+            this.Move = Move;
+            this.Turn = Turn;
             this.StartBreed = StartBreed;
             this.WriteProgramBreed = WriteProgramBreed;
             this.Die = Die;
             this.GetVision = GetVision;
+            this.OnFood = OnFood;
+            this.GiveEnergy = GiveEnergy;
             this.pc = 0;
         }
 
@@ -142,9 +147,16 @@ namespace Evolution
                             if (registers[byte2] <= registers[byte3])
                                 pc += 3;
                             break;
+                        case Instruction.IfNotOnFood:
+                            if (OnFood())
+                                pc += 3;
+                            break;
                         case Instruction.GetVision:
                             registers[byte2] = GetVision();
                             break;
+                        case Instruction.GiveEnergy:
+                            GiveEnergy((Direction)byte2, byte3);
+                            return;
                         default:
                             pc++;
                             break;
