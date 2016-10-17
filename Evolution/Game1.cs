@@ -263,7 +263,7 @@ namespace Evolution
                 videoWriter = new BinaryWriter(new GZipStream(File.OpenWrite("video.vid"), CompressionMode.Compress));
             else if (Keyboard.GetState().IsKeyDown(Keys.E) && videoWriter != null)
                 videoWriter.Dispose();
-
+#if WINDOWS
             if (Keyboard.GetState().IsKeyDown(Keys.L))
             {
                 var openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -329,6 +329,7 @@ namespace Evolution
                     });
                 }
             }
+#endif
 
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
@@ -380,14 +381,14 @@ namespace Evolution
 
             if (Keyboard.GetState().IsKeyDown(Keys.J))
                 paused10 = !paused10;
-
+#if WINDOWS
             if (Keyboard.GetState().IsKeyDown(Keys.R))
             {
                 var openFileDialog = new System.Windows.Forms.OpenFileDialog();
                 openFileDialog.ShowDialog();
                 videoReader = new BinaryReader(new GZipStream(openFileDialog.OpenFile(), CompressionMode.Decompress));
             }
-
+#endif
             if (videoWriter != null)
                 if (videoWriter.BaseStream.CanWrite)
                 {

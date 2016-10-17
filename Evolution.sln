@@ -5,6 +5,12 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evolution", "Evolution\Evolution.csproj", "{72CAB25B-D7FF-4452-A4AF-6ED6ACE36A59}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evolution_XNA", "Evolution_XNA\Evolution_XNA\Evolution_XNA.csproj", "{707AEE54-1D65-4C07-A641-D543F0F178D6}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "Evolution_XNAContent", "Evolution_XNA\Evolution_XNAContent\Evolution_XNAContent.contentproj", "{3199ABE9-7506-4A82-9FD7-062F14D463A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evolution_Multiplatform", "Evolution_Multiplatform\Evolution_Multiplatform.csproj", "{231D9DA1-5F46-494D-A4E7-26FA94552E5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -15,6 +21,16 @@ Global
 		{72CAB25B-D7FF-4452-A4AF-6ED6ACE36A59}.Debug|x86.Build.0 = Debug|x86
 		{72CAB25B-D7FF-4452-A4AF-6ED6ACE36A59}.Release|x86.ActiveCfg = Release|x86
 		{72CAB25B-D7FF-4452-A4AF-6ED6ACE36A59}.Release|x86.Build.0 = Release|x86
+		{707AEE54-1D65-4C07-A641-D543F0F178D6}.Debug|x86.ActiveCfg = Debug|x86
+		{707AEE54-1D65-4C07-A641-D543F0F178D6}.Debug|x86.Build.0 = Debug|x86
+		{707AEE54-1D65-4C07-A641-D543F0F178D6}.Release|x86.ActiveCfg = Release|x86
+		{707AEE54-1D65-4C07-A641-D543F0F178D6}.Release|x86.Build.0 = Release|x86
+		{3199ABE9-7506-4A82-9FD7-062F14D463A2}.Debug|x86.ActiveCfg = Debug|x86
+		{3199ABE9-7506-4A82-9FD7-062F14D463A2}.Release|x86.ActiveCfg = Release|x86
+		{231D9DA1-5F46-494D-A4E7-26FA94552E5C}.Debug|x86.ActiveCfg = Debug|x86
+		{231D9DA1-5F46-494D-A4E7-26FA94552E5C}.Debug|x86.Build.0 = Debug|x86
+		{231D9DA1-5F46-494D-A4E7-26FA94552E5C}.Release|x86.ActiveCfg = Release|x86
+		{231D9DA1-5F46-494D-A4E7-26FA94552E5C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
